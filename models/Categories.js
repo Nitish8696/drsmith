@@ -1,23 +1,10 @@
-const mongoose = require("mongoose");
-const { boolean } = require("webidl-conversions");
+const mongoose = require('mongoose');
 
+const categorySchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  slug: { type: String, required: true },
+  parentCategory: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', default : null},
+  level : {type : Number, required : true}
+});
 
-const CategoriesSchema = new mongoose.Schema(
-    {
-        name : {type : String, required: true , unique: true},
-        parentCategory : {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Category',
-            default : null
-        },
-        children: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Category',
-            default : null
-          }]
-
-    },
-    { timestamps: true }
-)
-
-module.exports = mongoose.model("Category", CategoriesSchema)
+module.exports = mongoose.model('Category', categorySchema);

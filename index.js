@@ -11,6 +11,8 @@ const stripeRoute = require("./routes/stripe")
 const reviewRoute = require("./routes/review")
 const searchRoute = require("./routes/search")
 const categoryRoute = require("./routes/category")
+const variationRoute = require("./routes/variations")
+const attributeRoute = require('./routes/attributes')
 const cors = require("cors")
 const bodyParser = require('body-parser');
 
@@ -33,8 +35,9 @@ app.use("/api/checkout", stripeRoute);
 app.use("/api/review", reviewRoute);
 app.use("/api/search", searchRoute);
 app.use("/api/category", categoryRoute);
-app.use(express.json())
+app.use("/api/products-variation", variationRoute);
+app.use("/api/products-attribute", attributeRoute);
 
-app.listen(process.env.PORT || 5000,()=>{
+app.listen(process.env.PORT || 8000,()=>{
     console.log("bacend is runing")
 })

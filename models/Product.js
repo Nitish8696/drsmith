@@ -6,17 +6,21 @@ const ProductSchema = new mongoose.Schema({
   title: { type: String, required: true },
   desc: { type: String, required: true },
   img: { type: Array, required: true },
-  categories: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Category'
-  },
-  priceOptions: {
+  categories: [
+    { type: mongoose.Schema.Types.ObjectId, ref: 'Category' }
+  ],
+  salePrice: { type: String, default: null },
+  regularPrice: { type: String, default: null },
+  isVariable: { type: Boolean, default: false },
+  variable: {
     type: [
       {
-        weight: String,
-        price: Number
+        name: { type: String },
+        regularPrice: { type: Number },
+        salePrice: { type: Number }
       }
-    ]
+    ],
+    default: null
   },
   inStock: { type: Number }
 },

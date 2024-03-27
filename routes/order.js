@@ -1,4 +1,5 @@
 const Order = require("../models/Order");
+const ConfirmOrder = require("../models/ConfirmOrder");
 const { verifyToken, verifyTokenAndAuthorization, verifyTokenAndAdmin } = require("./verifyToken");
 const CryptoJS = require("crypto-js")
 
@@ -34,7 +35,7 @@ router.put("/:id", verifyTokenAndAdmin, async (req, res) => {
 
 router.delete("/:id", verifyTokenAndAdmin, async (req, res) => {
     try {
-        await Order.findByIdAndDelete(req.params.id)
+        await ConfirmOrder.findByIdAndDelete(req.params.id)
         res.status(200).json("Order has been deleted")
     } catch (error) {
         res.status(500).json(error)
@@ -52,7 +53,7 @@ router.get("/find/:userId", verifyTokenAndAuthorization, async (req, res) => {
 
 router.get("/", verifyTokenAndAdmin, async (req, res) => {
     try {
-        const orders = await Order.find()
+        const orders = await ConfirmOrder.find()
         res.status(200).json(orders)
     } catch (error) {
         res.status(500).json(err);

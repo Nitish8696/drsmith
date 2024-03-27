@@ -64,6 +64,7 @@ router.post('/status/:txnId/:id', async (req, res) => {
         address : order.address
       })
       const corder = await confirmOrder.save()
+      const deleteOrder = await Order.findByIdAndDelete(req.params.id)
       res.redirect(`http://localhost:3000/success/${req.body.code}/${corder._id}`)
     }
     if(req.body.code === 'PAYMENT_ERROR'){

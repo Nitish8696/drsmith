@@ -26,14 +26,14 @@ router.post("/login", async (req, res) => {
     try {
         const user = await User.findOne({ username: req.body.formData.username })
         if (!user) {
-            return res.json({status: 401 ,msg : "User Not Found With This Email"});
+            return res.json({status: 401 ,msg : "User Not Found With This username"});
         }
 
         const hashedPassword = CryptoJS.AES.decrypt(user.password, process.env.PASS_SEC)
 
         const originalPassword = hashedPassword.toString(CryptoJS.enc.Utf8)
 
-        if (originalPassword !== req.body.password) {
+        if (originalPassword !== req.body.formData.password) {
             return res.json({status : 401, msg : "Password is incorrect"});
         }
 

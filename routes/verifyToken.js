@@ -5,12 +5,12 @@ const verifyToken = (req, res, next) => {
     if (authHeader) {
         const token = authHeader.split(" ")[1];
         jwt.verify(token, process.env.JWT_SEC, (err, user) => {
-            if (err) return res.status(403).json("Token is not valid!");
+            if (err) return res.json({status: 403,msg:"Session expired login first"});
             req.user = user;
             next();
         });
     } else {
-        return res.status(401).json("you are not authorized")
+        return res.json({status: 401 , msg: 'You are not authorized register first'})
     }
 }
 

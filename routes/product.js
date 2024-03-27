@@ -18,12 +18,13 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
+// , verifyTokenAndAdmin
 
-router.post("/", upload.array('images'), verifyTokenAndAdmin, async (req, res) => {
-    let priceOptions = req.body.selectedOption === 'option1' ? req.body.priceByWeight : req.body.priceByPack
-    priceOptions = JSON.parse(priceOptions)
+router.post("/", upload.array('images'), async (req, res) => {
+    console.log(req.body)
 
     const categoryArray = JSON.parse(req.body.category);
+    const variable = JSON.parse(req.body.variable);
 
     let productimages = []
 
@@ -35,20 +36,42 @@ router.post("/", upload.array('images'), verifyTokenAndAdmin, async (req, res) =
 
     await productImagesLocalpath()
 
-    const price = Number(req.body.price)
+    const isVariable = JSON.parse(req.body.isVariable)
+
     const stock = Number(req.body.stock)
+    
 
+    const salePrice = JSON.parse(req.body.salePrice)
+    const regularPrice = JSON.parse(req.body.regularPrice)
 
-    const newProduct = new Product({
-        title: req.body.title,
-        desc: req.body.description,
-        img: productimages,
-        categories: categoryArray,
-        priceOptions: priceOptions,
-        inStock: stock
-    })
+     let newProduct;
+
+    if (isVariable) {
+         newProduct = new Product({
+            title: req.body.title,
+            desc: req.body.description,
+            img: productimages,
+            categories: categoryArray,
+            inStock: stock,
+            isVariable: isVariable,
+            variable: variable
+        })
+    }
+    else {
+         newProduct = new Product({
+            title: req.body.title,
+            desc: req.body.description,
+            img: productimages,
+            categories: categoryArray,
+            inStock: stock,
+            isVariable: isVariable,
+            salePrice: salePrice,
+            regularPrice: regularPrice
+        })
+    }
     try {
         const savedProduct = await newProduct.save();
+
         res.status(200).json(savedProduct)
     } catch (error) {
         res.status(500).json(error)
