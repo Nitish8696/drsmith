@@ -1,4 +1,4 @@
-const Product = require("../models/Product");
+const Post = require("../models/Post");
 const express = require("express");
 const { verifyTokenAndAuthorization, verifyTokenAndAdmin } = require("./verifyToken");
 const CryptoJS = require("crypto-js")
@@ -19,10 +19,9 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-router.post("/",verifyTokenAndAdmin , upload.array('images'),async (req, res) => {
+router.post("/", verifyTokenAndAdmin, upload.array('images'), async (req, res) => {
 
     const categoryArray = JSON.parse(req.body.category);
-    const variable = JSON.parse(req.body.variable);
 
     let productimages = []
 
@@ -34,43 +33,19 @@ router.post("/",verifyTokenAndAdmin , upload.array('images'),async (req, res) =>
 
     await productImagesLocalpath()
 
-    const isVariable = JSON.parse(req.body.isVariable)
 
-    const stock = JSON.parse(req.body.stock)
-    
+    let newPost;
 
-    const salePrice = JSON.parse(req.body.salePrice)
-    const regularPrice = JSON.parse(req.body.regularPrice)
-
-     let newProduct;
-
-    if (isVariable) {
-         newProduct = new Product({
-            title: req.body.title,
-            desc: req.body.description,
-            img: productimages,
-            categories: categoryArray,
-            inStock: stock,
-            isVariable: isVariable,
-            variable: variable
-        })
-    }
-    else {
-         newProduct = new Product({
-            title: req.body.title,
-            desc: req.body.description,
-            img: productimages,
-            categories: categoryArray,
-            inStock: stock,
-            isVariable: isVariable,
-            salePrice: salePrice,
-            regularPrice: regularPrice
-        })
-    }
+    newPost = new Post({
+        title: req.body.title,
+        img: productimages,
+        categories: categoryArray,
+        content: req.body.post
+    })
     try {
-        const savedProduct = await newProduct.save();
+        const savedPost = await newPost.save();
 
-        res.status(200).json(savedProduct)
+        res.status(200).json(savedPost)
     } catch (error) {
         res.status(500).json(error)
     }
@@ -78,7 +53,7 @@ router.post("/",verifyTokenAndAdmin , upload.array('images'),async (req, res) =>
 
 router.put("/:id", verifyTokenAndAdmin, async (req, res) => {
     try {
-        const updatedProduct = await Product.findByIdAndUpdate(req.params.id, {
+        const updatedProduct = await Post.findByIdAndUpdate(req.params.id, {
             $set: req.body
         }, { new: true })
         if (updatedUser) {
@@ -91,7 +66,7 @@ router.put("/:id", verifyTokenAndAdmin, async (req, res) => {
 
 router.delete("/:id", verifyTokenAndAdmin, async (req, res) => {
     try {
-        await Product.findByIdAndDelete(req.params.id)
+        await Post.findByIdAndDelete(req.params.id)
         res.status(200).json("Product has been deleted")
     } catch (error) {
         res.status(500).json(error)
@@ -99,7 +74,7 @@ router.delete("/:id", verifyTokenAndAdmin, async (req, res) => {
 })
 router.get("/find/:id", async (req, res) => {
     try {
-        const product = await Product.findById(req.params.id);
+        const product = await Post.findById(req.params.id);
         res.status(200).json(product);
     } catch (err) {
         res.status(500).json(err);
@@ -113,29 +88,22 @@ router.get("/", async (req, res) => {
     try {
         let products;
         if (qNew) {
-            products = await Product.find().sort({ createdAt: -1 }).limit(1);
+            products = await Post.find().sort({ createdAt: -1 }).limit(1);
         } else if (qCategory) {
-            products = await Product.find({
+            products = await Post.find({
                 categories: {
                     $in: [qCategory]
                 }
             })
         } else {
-            products = await Product.find()
+            products = await Post.find()
         }
 
-        const page = Number(req.query.page) || 1
-        const limit = Number(req.query.limit) || 10
-        const skip = (page - 1) * limit
-
-        // const result = products.skip(skip).limit(limit)
-        const result = products.slice(skip, skip + limit)
-
-        products = await result
         res.status(200).json(products)
     } catch (error) {
         res.status(500).json(error)
     }
 })
+
 
 module.exports = router

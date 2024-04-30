@@ -5,19 +5,19 @@ const router = require("express").Router();
 const { verifyToken } = require("./verifyToken");
 
 router.post('/:id', verifyToken, async(req,res)=> {
+    console.log(req.body)
     req.body.createdBy = req.user.id
     req.body.product = req.params.id
 
-    console.log(req.body)
 
-    if (!req.body.createdBy || !req.body.product || !req.body.review) {
-        return res.status(400).json({ error: 'UserId, productId, rating, and review are required.' });
+    if (!req.body.createdBy || !req.body.product || !req.body.postReview) {
+        return res.json({ status:400,msg: 'UserId, productId, rating, and review are required.' });
     }
 
     const user = await User.findById(req.body.createdBy)
 
     const newReview = new Review({
-        review : req.body.review,
+        review : req.body.postReview,
         product : req.body.product,
         createdBy : req.body.createdBy,
         userName : user.username

@@ -16,14 +16,20 @@ const OrderSchema = new mongoose.Schema(
                     type:Number,
                     default : 1,
                 },
-                weight : {
+                variable : {
                     type: String,
+                    default : null
                   }
             },
         ],
         amount: { type: Number, required:true},
         address: {type : Object, required : true},
-        status : {type: String, default : 'pending'},
+        transationId : {type : String, required:true},
+        status : {
+            type : String,
+            enum : ["PAYMENT NOT INITIALIZED", "PAYMENT_PENDING" , "PAYMENT_SUCCESS","PAYMENT_ERROR","INTERNAL_SERVER_ERROR","COD"],
+            default : "PAYMENT NOT INITIALIZED"
+        },
     },
     { timestamps: true }
 )

@@ -11,11 +11,19 @@ const stripeRoute = require("./routes/stripe")
 const reviewRoute = require("./routes/review")
 const searchRoute = require("./routes/search")
 const categoryRoute = require("./routes/category")
+const postcategoryRoute = require("./routes/postcategory")
+const addpostRoute = require("./routes/addpost")
 const variationRoute = require("./routes/variations")
 const attributeRoute = require('./routes/attributes')
+const codRoute = require('./routes/cod')
+const blogimageupload = require('./routes/blogimageupload')
 const cors = require("cors")
 const bodyParser = require('body-parser');
+const multer = require('multer');
 
+
+
+app.use(express.urlencoded({ extended: true }));
 
 
 dotenv.config();
@@ -32,11 +40,16 @@ app.use("/api/products", productRoute);
 app.use("/api/carts", cartRoute);
 app.use("/api/orders", orderRoute);
 app.use("/api/checkout", stripeRoute);
+app.use("/api/cod", codRoute);
 app.use("/api/review", reviewRoute);
 app.use("/api/search", searchRoute);
 app.use("/api/category", categoryRoute);
+app.use("/api/post", addpostRoute);
+app.use("/api/postcategory", postcategoryRoute);
+app.use("/api/blogimage", blogimageupload);
 app.use("/api/products-variation", variationRoute);
 app.use("/api/products-attribute", attributeRoute);
+
 
 app.listen(process.env.PORT || 8000,()=>{
     console.log("bacend is runing")

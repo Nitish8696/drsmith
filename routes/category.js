@@ -1,13 +1,44 @@
 const Category = require("../models/Categories")
 const { verifyTokenAndAuthorization, verifyTokenAndAdmin } = require("./verifyToken");
 const router = require("express").Router();
+const path = require("path");
 
+const multer = require('multer');
 
+// Set storage engine
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    return cb(null, './public'); // Destination directory for uploaded files
+  },
+  filename: function (req, file, cb) {
+    return cb(null, Date.now() + path.extname(file.originalname)); // File naming
+  }
+});
 
-router.post("/", async (req, res) => {
-  console.log(req.body)
+const upload = multer({ storage: storage });
+
+router.post("/", upload.single('images'), async (req, res) => {
+  let category;
+  if (req.body.parentCategory === 'null') {
+    category = new Category({
+      name: req.body.name,
+      slug: req.body.slug,
+      level: req.body.level,
+      img: req.file.filename
+    })
+
+  }
+  else {
+    category = new Category({
+      name: req.body.name,
+      slug: req.body.slug,
+      parentCategory: req.body.parentCategory,
+      level: req.body.level,
+      img: req.file.filename
+    })
+  }
   try {
-    const addcategory = await Category.create(req.body)
+    const addcategory = await category.save()
     res.status(201).json(addcategory);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -16,7 +47,7 @@ router.post("/", async (req, res) => {
 
 
 router.get("/", async (req, res) => {
-  
+
   try {
     const categories = await Category.find()
     res.status(200).json(categories)

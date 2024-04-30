@@ -1,17 +1,22 @@
 const Order = require("../models/Order");
-const ConfirmOrder = require("../models/ConfirmOrder");
+const Product = require("../models/Product");
 const { verifyToken, verifyTokenAndAuthorization, verifyTokenAndAdmin } = require("./verifyToken");
 const CryptoJS = require("crypto-js")
 
 const router = require("express").Router();
 
 router.post("/", verifyToken, async (req, res) => {
+    console.log(req.user)
     const newOrder = new Order({
         userId: req.user.id,
         products : req.body.products,
         amount : req.body.amount,
-        address : req.body.address  
+        address : req.body.address , 
+        transationId : req.body.transationId,
     })
+
+    console.log(newOrder)
+
     try {
         const savedOrder = await newOrder.save();
         res.status(200).json(savedOrder)
@@ -35,7 +40,7 @@ router.put("/:id", verifyTokenAndAdmin, async (req, res) => {
 
 router.delete("/:id", verifyTokenAndAdmin, async (req, res) => {
     try {
-        await ConfirmOrder.findByIdAndDelete(req.params.id)
+        await Order.findByIdAndDelete(req.params.id)
         res.status(200).json("Order has been deleted")
     } catch (error) {
         res.status(500).json(error)
@@ -53,7 +58,7 @@ router.get("/find/:userId", verifyTokenAndAuthorization, async (req, res) => {
 
 router.get("/", verifyTokenAndAdmin, async (req, res) => {
     try {
-        const orders = await ConfirmOrder.find()
+        const orders = await Order.find()
         res.status(200).json(orders)
     } catch (error) {
         res.status(500).json(err);
