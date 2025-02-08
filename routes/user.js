@@ -1,5 +1,5 @@
 const User = require("../models/User");
-const { verifyTokenAndAuthorization, verifyTokenAndAdmin } = require("./verifyToken");
+const { verifyTokenAndAuthorization, verifyTokenAndAdmin, verifyToken } = require("./verifyToken");
 const CryptoJS = require("crypto-js")
 
 
@@ -20,6 +20,41 @@ router.put("/:id", verifyTokenAndAuthorization, async (req, res, next) => {
         }
     } catch (error) {
         res.status(500).json(err)
+    }
+})
+router.post('/updatepassword', verifyToken, async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+    const id = req.user.id
+    if (!oldPassword || !newPassword) {
+        return res.json({ status : 400, message: 'Old password and new password are required' });
+    }
+    try {
+        // Find the user by ID
+        const user = await User.findById(id);
+        if (!user) {
+            return res.json({ status : 404, message: 'User not found' });
+        }
+
+        // Check if the old password is correct
+        const hashedPassword =  CryptoJS.AES.decrypt(user.password, process.env.PASS_SEC)
+
+        const originalPassword = hashedPassword.toString(CryptoJS.enc.Utf8)
+
+        // const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (originalPassword !== oldPassword) {
+            return res.json({ status: 406, message: 'Old password is incorrect' });
+        }
+
+        // Hash the new password and update it
+        const NewhashedPassword =  CryptoJS.AES.encrypt(newPassword, process.env.PASS_SEC).toString();
+        user.password = NewhashedPassword;
+
+        // Save the updated user
+        await user.save();
+
+        res.json({ status:200, message: 'Password updated successfully' });
+    } catch (error) {
+        res.json({status:500, message: 'Server error', error: error.message });
     }
 })
 
@@ -43,14 +78,13 @@ router.get("/find/:id", verifyTokenAndAdmin, async (req, res) => {
 });
 
 router.get("/", verifyTokenAndAdmin, async (req, res) => {
-    const query = req.query.new;
     try {
-        const users = query ? await User.find().sort({ _id: -1 }).limit(5) : await User.find();
-        res.status(200).json(users)
+        const users = await User.find({ isVerified: true });  // Only fetch verified users
+        res.status(200).json(users);
     } catch (error) {
-        res.status(500).json(error)
+        res.status(500).json(error);
     }
-})
+});
 
 router.get("/stats", verifyTokenAndAdmin, async (req, res) => {
     const date = new Date();

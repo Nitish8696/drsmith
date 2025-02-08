@@ -46,11 +46,55 @@ router.post("/", upload.single('images'), async (req, res) => {
 })
 
 
+// Edit category by ID
+router.put("/:id", upload.single('images'), async (req, res) => {
+  try {
+    // Find the category by ID
+    let category = await Category.findById(req.params.id);
+    if (!category) {
+      return res.status(404).json({ message: "Category not found" });
+    }
+
+    // Update the category's properties
+    category.name = req.body.name || category.name;
+    category.slug = req.body.slug || category.slug;
+    category.level = req.body.level || category.level;
+
+    // If parentCategory is provided, update it
+    if (req.body.parentCategory !== 'null' && req.body.parentCategory !== '') {
+      category.parentCategory = req.body.parentCategory;
+    } else {
+      category.parentCategory = null; // Reset to null if empty or 'null'
+    }
+
+    // Update the image if a new one is uploaded
+    if (req.file) {
+      category.img = req.file.filename;
+    }
+
+    // Save the updated category
+    const updatedCategory = await category.save();
+    res.status(200).json(updatedCategory);
+
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+
 router.get("/", async (req, res) => {
 
   try {
     const categories = await Category.find()
     res.status(200).json(categories)
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+})
+router.get("/:id", async (req, res) => {
+  try {
+    const categorie = await Category.findById(req.params.id)
+    res.status(200).json(categorie)
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
